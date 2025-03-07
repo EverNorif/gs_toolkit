@@ -1,0 +1,4 @@
+[submodule "dependencies/diff-gaussian-rasterization"]
+	path = dependencies/diff-gaussian-rasterization
+	url = https://github.com/graphdeco-inria/diff-gaussian-rasterization.git
+	branch = dr_aa
