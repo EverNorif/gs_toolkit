@@ -24,3 +24,6 @@ pip install -e ./dependencies/diff-gaussian-rasterization
 
 # Install requirements
 pip install -r requirements.txt
+
+# Install this repo as a package
+pip install -e .

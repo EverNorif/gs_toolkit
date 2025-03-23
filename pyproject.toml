@@ -1,0 +1,15 @@
+[build-system]
+requires = ["setuptools>=64.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "gs_toolkit"
+version = "0.1.0"
+authors = [
+    {name = "EverNorif", email = "evernorif@gmail.com"},
+]
+description = "Tookit for gaussian-splatting."
+urls = {Homepage = "https://github.com/EverNorif/gs_toolkit"}
+
+[tool.setuptools]
+packages = ["gs_toolkit"]
