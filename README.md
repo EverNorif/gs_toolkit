@@ -57,7 +57,15 @@ entry.render_cameras()
 
 Video Rendering will render a surrounding video of the scene like the following result.
 
+<details>
+<summary>[Video Rendering Example]</summary>
+<p></p>
 (Note: Demo video is compressed. The actual rendered videos will be at full resolution)
+<p></p>
+  
+https://github.com/user-attachments/assets/f92006ff-1122-478a-9528-ce23810a17f1
+
+</details>
 
 - python
 
