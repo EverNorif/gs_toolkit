@@ -3,9 +3,9 @@ import os
 import numpy as np
 
 from glob import glob
-from tqdm import tqdm
 from typing import List, Tuple
 
+from .rich_utils import get_progress, CONSOLE
 from .general_utils import convert_to_camera_model, convert_gs_camera_to_cv2_camera
 from ..model.camera_model import Camera
 
@@ -128,18 +128,19 @@ def save_images_to_video(image_folder: str, output_path: str, fps: int=30):
         image_files.extend(glob(os.path.join(image_folder, ext)))
     image_files.sort()
     if not image_files:
-        print("no images found")
+        CONSOLE.print("[red]:vampire: no images found!")
         return
     frame = cv2.imread(image_files[0])
     height, width, _ = frame.shape
     fourcc = cv2.VideoWriter_fourcc(*'mp4v')
-    out = cv2.VideoWriter(output_path, fourcc, fps, (width, height))    
-    for image_file in tqdm(image_files):
-        frame = cv2.imread(image_file)
-        if frame is not None:
-            out.write(frame)
+    out = cv2.VideoWriter(output_path, fourcc, fps, (width, height)) 
+    with get_progress(description="[bright_green]:pencil: Saving video...", suffix="frame/s", show_percent=True) as progress:
+        for image_file in progress.track(image_files, total=len(image_files)):
+            frame = cv2.imread(image_file)
+            if frame is not None:
+                out.write(frame)
     out.release()
-    print(f"video saved to: {output_path}")
+    CONSOLE.print(f"[bright_green]:white_heavy_check_mark: Video has been saved to: {output_path}")
 
 def save_c2ws_to_cameras(c2ws, output_path: str, fx, fy, width, height):
     from gs_toolkit.utils.general_utils import save_cameras_json, convert_to_camera_model
