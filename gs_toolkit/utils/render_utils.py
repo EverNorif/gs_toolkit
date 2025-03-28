@@ -11,13 +11,13 @@ from ..model.camera_model import Camera
 
 
 def unpad_poses(p: np.ndarray) -> np.ndarray:
-  """Remove the homogeneous bottom row from [..., 4, 4] pose matrices."""
-  return p[..., :3, :4]
+    """Remove the homogeneous bottom row from [..., 4, 4] pose matrices."""
+    return p[..., :3, :4]
 
 def pad_poses(p: np.ndarray) -> np.ndarray:
-  """Pad [..., 3, 4] pose matrices with a homogeneous bottom row [0,0,0,1]."""
-  bottom = np.broadcast_to([0, 0, 0, 1.], p[..., :1, :4].shape)
-  return np.concatenate([p[..., :3, :4], bottom], axis=-2)
+    """Pad [..., 3, 4] pose matrices with a homogeneous bottom row [0,0,0,1]."""
+    bottom = np.broadcast_to([0, 0, 0, 1.], p[..., :1, :4].shape)
+    return np.concatenate([p[..., :3, :4], bottom], axis=-2)
 
 def transform_poses_pca(c2ws: np.ndarray) -> Tuple[np.ndarray, np.ndarray]:
     positions = c2ws[:, :3, 3]
@@ -43,68 +43,67 @@ def transform_poses_pca(c2ws: np.ndarray) -> Tuple[np.ndarray, np.ndarray]:
     return poses_recentered, transform
 
 def normalize(x: np.ndarray) -> np.ndarray:
-  """Normalization helper function."""
-  return x / np.linalg.norm(x)
+    """Normalization helper function."""
+    return x / np.linalg.norm(x)
 
-def viewmatrix(lookdir: np.ndarray, up: np.ndarray,
-               position: np.ndarray) -> np.ndarray:
-  """Construct lookat view matrix."""
-  vec2 = normalize(lookdir)
-  vec0 = normalize(np.cross(up, vec2))
-  vec1 = normalize(np.cross(vec2, vec0))
-  m = np.stack([vec0, vec1, vec2, position], axis=1)
-  return m
+def viewmatrix(lookdir: np.ndarray, up: np.ndarray, position: np.ndarray) -> np.ndarray:
+    """Construct lookat view matrix."""
+    vec2 = normalize(lookdir)
+    vec0 = normalize(np.cross(up, vec2))
+    vec1 = normalize(np.cross(vec2, vec0))
+    m = np.stack([vec0, vec1, vec2, position], axis=1)
+    return m
 
 def focus_point_fn(poses: np.ndarray) -> np.ndarray:
-  """Calculate nearest point to all focal axes in poses."""
-  directions, origins = poses[:, :3, 2:3], poses[:, :3, 3:4]
-  m = np.eye(3) - directions * np.transpose(directions, [0, 2, 1])
-  mt_m = np.transpose(m, [0, 2, 1]) @ m
-  focus_pt = np.linalg.inv(mt_m.mean(0)) @ (mt_m @ origins).mean(0)[:, 0]
-  return focus_pt
+    """Calculate nearest point to all focal axes in poses."""
+    directions, origins = poses[:, :3, 2:3], poses[:, :3, 3:4]
+    m = np.eye(3) - directions * np.transpose(directions, [0, 2, 1])
+    mt_m = np.transpose(m, [0, 2, 1]) @ m
+    focus_pt = np.linalg.inv(mt_m.mean(0)) @ (mt_m @ origins).mean(0)[:, 0]
+    return focus_pt
 
 def generate_ellipse_path(poses: np.ndarray,
-                          n_frames: int = 480,
-                          z_variation: float = 0.,
-                          z_phase: float = 0.) -> np.ndarray:
-  """Generate an elliptical render path based on the given poses."""
-  # Calculate the focal point for the path (cameras point toward this).
-  center = focus_point_fn(poses)
-  # Path height sits at z=0 (in middle of zero-mean capture pattern).
-  offset = np.array([center[0], center[1], 0])
+                         n_frames: int = 480,
+                         z_variation: float = 0.,
+                         z_phase: float = 0.) -> np.ndarray:
+    """Generate an elliptical render path based on the given poses."""
+    # Calculate the focal point for the path (cameras point toward this).
+    center = focus_point_fn(poses)
+    # Path height sits at z=0 (in middle of zero-mean capture pattern).
+    offset = np.array([center[0], center[1], 0])
 
-  # Calculate scaling for ellipse axes based on input camera positions.
-  sc = np.percentile(np.abs(poses[:, :3, 3] - offset), 90, axis=0)
-  # Use ellipse that is symmetric about the focal point in xy.
-  low = -sc + offset
-  high = sc + offset
-  # Optional height variation need not be symmetric
-  z_low = np.percentile((poses[:, :3, 3]), 10, axis=0)
-  z_high = np.percentile((poses[:, :3, 3]), 90, axis=0)
+    # Calculate scaling for ellipse axes based on input camera positions.
+    sc = np.percentile(np.abs(poses[:, :3, 3] - offset), 90, axis=0)
+    # Use ellipse that is symmetric about the focal point in xy.
+    low = -sc + offset
+    high = sc + offset
+    # Optional height variation need not be symmetric
+    z_low = np.percentile((poses[:, :3, 3]), 10, axis=0)
+    z_high = np.percentile((poses[:, :3, 3]), 90, axis=0)
 
-  def get_positions(theta):
-    # Interpolate between bounds with trig functions to get ellipse in x-y.
-    # Optionally also interpolate in z to change camera height along path.
-    return np.stack([
-        low[0] + (high - low)[0] * (np.cos(theta) * .5 + .5),
-        low[1] + (high - low)[1] * (np.sin(theta) * .5 + .5),
-        z_variation * (z_low[2] + (z_high - z_low)[2] *
-                       (np.cos(theta + 2 * np.pi * z_phase) * .5 + .5)),
-    ], -1)
+    def get_positions(theta):
+        # Interpolate between bounds with trig functions to get ellipse in x-y.
+        # Optionally also interpolate in z to change camera height along path.
+        return np.stack([
+            low[0] + (high - low)[0] * (np.cos(theta) * .5 + .5),
+            low[1] + (high - low)[1] * (np.sin(theta) * .5 + .5),
+            z_variation * (z_low[2] + (z_high - z_low)[2] *
+                          (np.cos(theta + 2 * np.pi * z_phase) * .5 + .5)),
+        ], -1)
 
-  theta = np.linspace(0, 2. * np.pi, n_frames + 1, endpoint=True)
-  positions = get_positions(theta)
+    theta = np.linspace(0, 2. * np.pi, n_frames + 1, endpoint=True)
+    positions = get_positions(theta)
 
-  # Throw away duplicated last position.
-  positions = positions[:-1]
+    # Throw away duplicated last position.
+    positions = positions[:-1]
 
-  # Set path's up vector to axis closest to average of input pose up vectors.
-  avg_up = poses[:, :3, 1].mean(0)
-  avg_up = avg_up / np.linalg.norm(avg_up)
-  ind_up = np.argmax(np.abs(avg_up))
-  up = np.eye(3)[ind_up] * np.sign(avg_up[ind_up])
+    # Set path's up vector to axis closest to average of input pose up vectors.
+    avg_up = poses[:, :3, 1].mean(0)
+    avg_up = avg_up / np.linalg.norm(avg_up)
+    ind_up = np.argmax(np.abs(avg_up))
+    up = np.eye(3)[ind_up] * np.sign(avg_up[ind_up])
 
-  return np.stack([viewmatrix(center - p, up, p) for p in positions])
+    return np.stack([viewmatrix(center - p, up, p) for p in positions])
 
 def generate_bounding_trajectory(cameras: List[Camera], n_frames: int=480) -> List[Camera]:
     c2ws, K = [], None
