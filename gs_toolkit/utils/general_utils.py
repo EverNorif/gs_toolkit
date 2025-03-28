@@ -1,8 +1,11 @@
-import torch
+import os
 import json
+import torch
 import numpy as np
 
-from .graphics_utils import focal2fov
+from typing import List
+
+from .graphics_utils import focal2fov, fov2focal, getWorld2View2
 from ..model.camera_model import Camera
 
 
@@ -98,28 +101,63 @@ def build_extrinsic(rotation, translation):
     extrinsic = np.concatenate([extrinsic, np.array([[0, 0, 0, 1]])], axis=0)
     return extrinsic
 
-def parse_cameras_json(cameras_json_path):
+def searchForMaxIteration(folder):
+    saved_iters = [int(fname.split("_")[-1]) for fname in os.listdir(folder) if fname.startswith("iteration_")]
+    return max(saved_iters)
+
+def convert_gs_camera_to_cv2_camera(camera: Camera):
+    w2c = getWorld2View2(camera.R, camera.T, camera.trans, camera.scale)
+    c2w = np.linalg.inv(w2c)
+    extrinsic = c2w
+
+    fx = fov2focal(camera.FoVx, camera.image_width)
+    fy = fov2focal(camera.FoVy, camera.image_height)
+    cx, cy = camera.image_width / 2, camera.image_height / 2
+    intrinsic = np.array([[fx, 0, cx], [0, fy, cy], [0, 0, 1]])
+    
+    return extrinsic, intrinsic
+
+def convert_to_camera_model(c2w, fx, fy, width, height):
+    w2c = np.linalg.inv(c2w)
+    t, R = w2c[:3, 3], w2c[:3, :3]
+    R = R.transpose() # KEY_POINT: R is stored transposed due to 'glm' in CUDA code
+    return Camera(
+        width=width,
+        height=height,
+        FoVx=focal2fov(fx, width),
+        FoVy=focal2fov(fy, height),
+        R=R,
+        T=t
+    )
+
+def parse_cameras_json(cameras_json_path: str) -> List[Camera]:
     with open(cameras_json_path, 'r') as f:
         cameras_info = json.load(f)
     cameras = []
     for camera_info in cameras_info:
         width, height = int(camera_info['width']), int(camera_info['height'])
         rotation, translation = camera_info['rotation'], camera_info['position']
-        c2w = build_extrinsic(rotation, translation)
-        w2c = np.linalg.inv(c2w)
-        t, R = w2c[:3, 3], w2c[:3, :3]
-        R = R.transpose()
         fx, fy = camera_info['fx'], camera_info['fy']
-
-        camera = Camera(
-            width=width,
-            height=height,
-            FoVx=focal2fov(fx, width),
-            FoVy=focal2fov(fy, height),
-            R=R,
-            T=t
-        )
+        c2w = build_extrinsic(rotation, translation)
+        camera = convert_to_camera_model(c2w, fx, fy, width, height)
         cameras.append(camera)
     return cameras
 
-
+def save_cameras_json(cameras: List[Camera], output_path: str):
+    cameras_info = []
+    for idx, camera in enumerate(cameras):
+        w2c = getWorld2View2(camera.R, camera.T, camera.trans, camera.scale)
+        c2w = np.linalg.inv(w2c)
+        rotation, translation = c2w[:3, :3], c2w[:3, 3]
+        cameras_info.append({
+            'id': idx,
+            'img_name': f"{idx:05d}",
+            'width': camera.image_width,
+            'height': camera.image_height,
+            'rotation': rotation.tolist(),
+            'position': translation.tolist(),
+            'fx': fov2focal(camera.FoVx, camera.image_width),
+            'fy': fov2focal(camera.FoVy, camera.image_height),
+        })
+    with open(output_path, 'w') as f:
+        json.dump(cameras_info, f)
