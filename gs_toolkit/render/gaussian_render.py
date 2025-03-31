@@ -70,3 +70,6 @@ def render(viewpoint_camera : Camera, pc : GaussianModel, bg_color : torch.Tenso
         }
     
     return out
+
+def render_ellipsoid(viewpoint_camera : Camera, pc : GaussianModel, bg_color : torch.Tensor, scaling_modifier = 1.0):
+    pass

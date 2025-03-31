@@ -46,7 +46,7 @@ entry = Entry(scene_path='./data/bicycle', output_path='./output')
 entry.render_cameras()
 ```
 
-- bash
+- shell
 
 ```shell
 

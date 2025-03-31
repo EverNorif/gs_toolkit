@@ -5,7 +5,7 @@ from rich.progress import BarColumn, Progress, ProgressColumn, Task, TaskProgres
 from rich.text import Text
 
 
-CONSOLE = Console(width=180)
+CONSOLE = Console(width=120)
 
 class ItersPerSecColumn(ProgressColumn):
     """Renders the iterations per second for a progress bar."""
