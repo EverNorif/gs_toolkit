@@ -22,6 +22,9 @@ conda install pytorch==2.1.2 torchvision==0.16.2 pytorch-cuda=11.8 -c pytorch -c
 # Install Gaussian Splatting Rasterizer
 pip install -e ./dependencies/diff-gaussian-rasterization
 
+# Install taichi_3d_ellipsoid
+pip install -e ./dependencies/taichi_3d_ellipsoid
+
 # Install requirements
 pip install -r requirements.txt
 
