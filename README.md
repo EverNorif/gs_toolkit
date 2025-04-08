@@ -31,7 +31,7 @@ data/
 
 ## Usage
 
-We provide both Python and shell interfaces for running the toolkit.
+We provide both python class calling and shell script calling methods for running thit toolkit.
 
 ### Camera Rendering
 
@@ -49,8 +49,7 @@ entry.render_cameras()
 - shell
 
 ```shell
-
-
+python -m gs_toolkit.entry render_cameras --scene_path='./data/bicycle' --output_path='./output'
 ```
 
 ### Video Rendering
@@ -60,7 +59,7 @@ Video Rendering will render a surrounding video of the scene like the following 
 <details>
 <summary>[Video Rendering Example]</summary>
 <p></p>
-(Note: Demo video is compressed. The actual rendered videos will be at full resolution)
+(Note: Demo video is compressed. The actual rendered videos will be at full resolution.)
 <p></p>
   
 https://github.com/user-attachments/assets/f92006ff-1122-478a-9528-ce23810a17f1
@@ -79,8 +78,7 @@ entry.render_video(frame_nums=480, fps=30)
 - shell
 
 ```shell
-
-
+python -m gs_toolkit.entry render_video --scene_path='./data/bicycle' --output_path='./output' --frame_nums 480 --fps 30
 ```
 
 ### Ellipsoid Rendering
@@ -89,6 +87,17 @@ Ellipsoid Rendering will render 3DGS as ellipsoid format, at each predefined cam
 
 <details>
 <summary>[3DGS Render vs. Ellipsoid Render]</summary>
+
+<table>
+  <tr>
+    <th>3DGS Render</th>
+    <th>Ellipsoid Render</th>
+  </tr>
+  <tr>
+    <td><img src="https://github.com/user-attachments/assets/1e303488-7f95-43cb-83df-edd2ecce4cd3" alt="3dgs_render"/></td>
+    <td><img src="https://github.com/user-attachments/assets/ab24b818-01c5-4f1e-9485-8cd091a84474" alt="ellipsoid"/></td>
+  </tr>
+</table>
 
 </details>
 
@@ -104,8 +113,7 @@ entry.render_ellipsoids()
 - shell
 
 ```shell
-
-
+python -m gs_toolkit.entry render_ellipsoids --scene_path='./data/bicycle' --output_path='./output'
 ```
 
 ### Ellipsoid Video Rendering
@@ -115,8 +123,10 @@ Ellipsoid Video Rendering will render a surrounding video of the scene with elli
 <details>
 <summary>[Video Rendering Example]</summary>
 <p></p>
-(Note: Demo video is compressed. The actual rendered videos will be at full resolution)
+(Note: Demo video is compressed, which is relatively blurry. The actual rendered videos will be at full resolution.)
 <p></p>
+
+https://github.com/user-attachments/assets/696141b7-ce34-4bd6-b37c-9d751a685577
 
 </details>
 
@@ -132,8 +142,7 @@ entry.render_ellipsoids_video(frame_nums=480, fps=30)
 - shell
 
 ```shell
-
-
+python -m gs_toolkit.entry render_ellipsoids_video --scene_path='./data/bicycle' --output_path='./output' --frame_nums 480 --fps 30
 ```
 
 ## Additional Information
