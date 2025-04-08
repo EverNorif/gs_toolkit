@@ -83,7 +83,8 @@ def build_ellipsoid_renderer(viewpoint_camera : Camera, pc : GaussianModel, bg_c
     Build an ellipsoid renderer for the scene.
     """
     resolution = (viewpoint_camera.image_width, viewpoint_camera.image_height) # (width, height)
-    fov = viewpoint_camera.FoVx * 180.0 / math.pi  # radian to degree
+    # taichi_3d_ellipsoid uses the vertical field of view
+    fov = viewpoint_camera.FoVy * 180.0 / math.pi  # radian to degree
     centers = pc.get_xyz
     radii = pc.get_scaling
     radii = radii * 2.0  # axis-length of each ellipsoid. (reference: https://blog.42yeah.is/rendering/opengl/2023/12/20/rasterizing-splats.html)
