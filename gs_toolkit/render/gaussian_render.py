@@ -6,7 +6,7 @@ import numpy as np
 from typing import Tuple
 
 from diff_gaussian_rasterization import GaussianRasterizationSettings, GaussianRasterizer
-from taichi_3d_ellipsoid.basic import EllipsoidRenderer
+from taichi_3d_ellipsoid import EllipsoidRasterizationRenderer, EllipsoidRenderer
 from ..model.gaussian_model import GaussianModel
 from ..model.camera_model import Camera
 from ..utils.graphics_utils import sh_features_to_colors, quaternion_to_rotation_matrix
@@ -86,12 +86,13 @@ def build_ellipsoid_renderer(viewpoint_camera : Camera, pc : GaussianModel, bg_c
     fov = viewpoint_camera.FoVx * 180.0 / math.pi  # radian to degree
     centers = pc.get_xyz
     radii = pc.get_scaling
+    radii = radii * 2.0  # axis-length of each ellipsoid. (reference: https://blog.42yeah.is/rendering/opengl/2023/12/20/rasterizing-splats.html)
     colors = sh_features_to_colors(pc.get_features_dc).squeeze(1)
     rotations = quaternion_to_rotation_matrix(pc.get_rotation)
     opacities = pc.get_opacity.squeeze(1)
     background_color = list(bg_color.tolist())
 
-    renderer = EllipsoidRenderer(
+    renderer = EllipsoidRasterizationRenderer(
         centers=centers,
         radii=radii,
         colors=colors,
@@ -102,6 +103,7 @@ def build_ellipsoid_renderer(viewpoint_camera : Camera, pc : GaussianModel, bg_c
         fov=fov,
         background_color=background_color,
         opacity_limit=0.2,
+        specular_strength=0.0,
         headless=True,
         device="cuda:0",
     )
