@@ -78,7 +78,7 @@ def render(viewpoint_camera : Camera, pc : GaussianModel, bg_color : torch.Tenso
     
     return out
 
-def build_ellipsoid_renderer(viewpoint_camera : Camera, pc : GaussianModel, bg_color : torch.Tensor):
+def build_ellipsoid_renderer(viewpoint_camera : Camera, pc : GaussianModel, bg_color : torch.Tensor, min_radius : float=1e-3):
     """
     Build an ellipsoid renderer for the scene.
     """
@@ -91,6 +91,14 @@ def build_ellipsoid_renderer(viewpoint_camera : Camera, pc : GaussianModel, bg_c
     rotations = quaternion_to_rotation_matrix(pc.get_rotation)
     opacities = pc.get_opacity.squeeze(1)
     background_color = list(bg_color.tolist())
+
+    # TODO: fix stripe area in render result
+    index = (radii[:, 0] > min_radius) & (radii[:, 1] > min_radius) & (radii[:, 2] > min_radius)
+    centers = centers[index]
+    radii = radii[index]
+    colors = colors[index]
+    rotations = rotations[index]
+    opacities = opacities[index]
 
     renderer = EllipsoidRasterizationRenderer(
         centers=centers,

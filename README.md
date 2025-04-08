@@ -9,7 +9,7 @@ This repository provides some useful tools for [gaussian-splatting](https://gith
 git clone --recursive https://github.com/EverNorif/gs_toolkit.git
 cd gs_toolkit
 
-# Create and activate conda environment
+# Create and activate conda environment, and install related dependencies.
 bash setup.sh
 ```
 
@@ -73,7 +73,60 @@ https://github.com/user-attachments/assets/f92006ff-1122-478a-9528-ce23810a17f1
 from gs_toolkit.entry import Entry
 
 entry = Entry(scene_path='./data/bicycle', output_path='./output')
-entry.render_video()
+entry.render_video(frame_nums=480, fps=30)
+```
+
+- shell
+
+```shell
+
+
+```
+
+### Ellipsoid Rendering
+
+Ellipsoid Rendering will render 3DGS as ellipsoid format, at each predefined camera position. You can see the comparison results here.
+
+<details>
+<summary>[3DGS Render vs. Ellipsoid Render]</summary>
+
+</details>
+
+- python
+
+```python
+from gs_toolkit.entry import Entry
+
+entry = Entry(scene_path='./data/bicycle', output_path='./output')
+entry.render_ellipsoids()
+```
+
+- shell
+
+```shell
+
+
+```
+
+### Ellipsoid Video Rendering
+
+Ellipsoid Video Rendering will render a surrounding video of the scene with ellipsoid format.
+
+<details>
+<summary>[Video Rendering Example]</summary>
+<p></p>
+(Note: Demo video is compressed. The actual rendered videos will be at full resolution)
+<p></p>
+
+</details>
+
+- python
+
+```python
+from gs_toolkit.entry import Entry
+
+entry = Entry(scene_path='./data/bicycle', output_path='./output')
+entry.render_ellipsoids_video(frame_nums=480, fps=30)
 ```
 
 - shell

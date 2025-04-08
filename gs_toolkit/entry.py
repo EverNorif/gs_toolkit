@@ -53,7 +53,7 @@ class Entry:
         CONSOLE.print("[bright_green]:party_popper: Rendering ellipsoids has been saved to: ", save_dir)
     
     def render_ellipsoids_video(self, frame_nums: int=480, fps: int=30):
-        save_dir = os.path.join(self.output_path, "ellipsoid_video")
+        save_dir = os.path.join(self.output_path, "ellipsoid_trajectory")
         os.makedirs(save_dir, exist_ok=True)
 
         cameras_trajectory = generate_bounding_trajectory(self.cameras, frame_nums)
