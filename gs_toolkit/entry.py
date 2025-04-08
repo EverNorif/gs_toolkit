@@ -47,7 +47,7 @@ class Entry:
         save_images_to_video(image_folder=save_dir, output_path=os.path.join(self.output_path, "trajectory.mp4"), fps=fps)
     
     def render_ellipsoids(self):
-        save_dir = os.path.join(self.output_path, "ellipsoid_render")
+        save_dir = os.path.join(self.output_path, "ellipsoid_renders")
         os.makedirs(save_dir, exist_ok=True)
         self.__save_ellipsoid_results(cameras=self.cameras, save_dir=save_dir, msg=":passenger_ship: Rendering ellipsoids")
         CONSOLE.print("[bright_green]:party_popper: Rendering ellipsoids has been saved to: ", save_dir)
