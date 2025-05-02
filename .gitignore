@@ -175,3 +175,5 @@ output/
 data/
 
 .vscode/
+
+cam_traj.html
